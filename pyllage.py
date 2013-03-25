@@ -55,14 +55,9 @@ def codec_in_html(response):
     return charset[0].decode()
 
 
-def decode_html(response):
-    """Return a decoded version of the response html."""
-    codec = codec_in_headers(response)
-    if codec is None:
-        codec = codec_in_html(response)
-    if codec is None:
-        codec = "utf-8"
-    return response["html"].decode(codec)
+def get_codec(response):
+    """Return appropriate codec information."""
+    return codec_in_headers(response) or codec_in_html(response) or "utf-8"
 
 
 class PyllageParser(html.parser.HTMLParser):
@@ -79,7 +74,7 @@ class PyllageParser(html.parser.HTMLParser):
             del self.stack[self.counter]
             self.counter -= 1
 
-    def handle_starttag(self, attrs):
+    def handle_starttag(self, tag, attrs):
         self.handle_previous_tag()
         self.counter += 1
         attrs_string = " | ".join("{}={}".format(*attr) for attr in attrs)
@@ -106,7 +101,30 @@ class PyllageParser(html.parser.HTMLParser):
 
 def get_pyllage_stack(url):
     response = simple_get(url)
-    html = decode_html(response)
+    codec = get_codec(response)
+    decoded_html = response["html"].decode(codec)
     pyll = PyllageParser()
-    pyll.feed(html)
-    return pyll.stack
+    pyll.feed(decoded_html)
+    pyll.freeze_data()
+    return pyll.stack, codec
+
+
+def examine_stack(stack, filename, codec):
+    """Writes a stack to file for examination."""
+    output = []
+    for key in range(1, len(stack) + 1):
+        lines = []
+        lines.append("{} | {} | {}".format(key, stack[key]["tag"], stack[key]["attrs"]))
+        data = stack[key]["data"]
+        if data:
+            lines.append(data)
+        lines.append("\n")
+        output.append("\n".join(lines))
+    with open(filename, "w", encoding=codec) as file:
+        file.write("".join(output))
+
+
+if __name__ == "__main__":
+    url = input("url >")
+    stack, codec = get_pyllage_stack(url)
+    examine_stack(stack, "output", codec)
