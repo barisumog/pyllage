@@ -78,9 +78,7 @@ class PyllageParser(html.parser.HTMLParser):
         self.handle_previous_tag()
         self.counter += 1
         attrs_string = " | ".join("{}={}".format(*attr) for attr in attrs)
-        self.stack[self.counter] = {"tag": tag,
-                                    "attrs": attrs_string,
-                                    "data": []}
+        self.stack[self.counter] = {"tag": tag, "attrs": attrs_string, "data": []}
 
     def handle_data(self, data):
         data = data.strip()
@@ -94,6 +92,7 @@ class PyllageParser(html.parser.HTMLParser):
         self.stack[self.counter]["data"].append(self.unescape("&#{};".format(name)))
 
     def freeze_data(self):
+        """Converts all data lists into string."""
         self.handle_previous_tag()
         for key in self.stack:
             self.stack[key]["data"] = "".join(self.stack[key]["data"])
