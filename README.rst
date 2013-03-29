@@ -3,6 +3,8 @@ pyllage
 
 A web scraper in Python 3.
 
+Currently under development.
+
 
 
 Requirements

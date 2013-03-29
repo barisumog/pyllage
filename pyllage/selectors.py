@@ -20,59 +20,85 @@
 #
 
 
-def choose(stack, tag="", attrs="", data="", before=0, after=0):
-    """Return lines in stack that match the given parameters."""
-    selected = {}
+def choose(stack, tag=None, attrs=None, data=None, select=True, exact=False):
+    """Choose items from stack.
+
+    If select is True, returns items that fit criteria. If False, returns all others.
+    If exact is False, compares tag, attrs and data flexibly.
+    If exact is True, compares tag, attrs and data exactly as given."""
+    if (tag is not None) and not exact:
+        tag = tag.split()
+    chosen = {}
     for key in stack:
-        line = stack[key]
-        if tag:
-            tags = tag.split()
-            if line["tag"] not in tags:
+        item = stack[key]
+        if tag is not None:
+            if exact and tag != item["tag"]:
                 continue
-        if attrs:
-            if attrs not in line["attrs"]:
+            if item["tag"] not in tag:
                 continue
-        if data:
-            if data not in line["data"]:
+        if attrs is not None:
+            if exact and attrs != item["attrs"]:
                 continue
-        selected[key] = line
-        for i in range(1, before + 1):
-            try:
-                selected[key - i]= stack[key - i]
-            except KeyError:
-                pass
-        for i in range(1, after + 1):
-            try:
-                selected[key + i]= stack[key + i]
-            except KeyError:
-                pass
-    return selected
+            if attrs not in item["attrs"]:
+                continue
+        if data is not None:
+            if exact and data != item["data"]:
+                continue
+            if data not in item["data"]:
+                continue
+        chosen[key] = item
+    if select:
+        return chosen
+    others = {}
+    for key in stack:
+        if key not in chosen:
+            others[key] = stack[key]
+    return others
 
 
-def index(stack):
-    """Returns the index of line or lines in stack."""
-    keys = list(sorted(stack.keys()))
-    if len(keys) == 1:
-        keys = keys[0]
-    return keys
+def relative(stack, index, offset=1, count=1):
+    """Returns count number of items offset from index.
 
-
-def between(start, stop, stack):
-    """Return lines between the range, endpoints inclusive."""
-    selected = {}
-    for i in range(start, stop + 1):
-        try:
-            selected[i] = stack[i]
-        except KeyError:
-            pass
-    return selected
+    With defaults, it returns the next item.
+    Offset can be negative, count must be greater than 1."""
+    if count < 1:
+        raise ValueError("count < 1")
+    keys = sorted(stack.keys())
+    try:
+        start = keys.index(index) + offset
+    except ValueError:
+        raise ValueError("index not in stack")
+    if start < 0 or start > (len(keys) - 1):
+        raise ValueError("offset out of range")
+    if start + count > len(keys):
+        raise ValueError("count out of range")
+    chosen = {}
+    for i in range(count):
+        key = keys[start + i]
+        chosen[key] = stack[key]
+    return chosen
 
 
 def rip_data(stack):
-    """Return a list of all data from stack."""
+    """Returns non-blank data values of stack in order."""
+    keys = sorted(stack.keys())
     data = []
-    for key in sorted(stack.keys()):
-        d = stack[key]["data"]
+    for k in keys:
+        d = stack[k]["data"]
         if d:
             data.append(d)
     return data
+
+
+def rip_index(stack):
+    """Returns the indexes of stack in order."""
+    return sorted(stack.keys())
+
+
+def between(stack, start, stop):
+    """Returns items between given indexes."""
+    chosen = {}
+    for i in range(start, stop + 1):
+        if i in stack:
+            chosen[i] = stack[i]
+    return chosen

@@ -41,6 +41,13 @@ def test_codec_in_headers():
     codec = http.codec_in_headers(response)
     assert codec == "ISO-8859-9"
 
+
+def test_codec_in_headers_2():
+    response = {"headers": {}}
+    codec = http.codec_in_headers(response)
+    assert codec is None
+
+
 def test_codec_in_headers_no_charset():
     response = {"headers": {"Content-Type": "text/html;"}}
     codec = http.codec_in_headers(response)
@@ -55,6 +62,7 @@ def test_codec_in_html():
     codec = http.codec_in_html(response)
     assert codec == "utf-16"
 
+
 def test_codec_in_html_no_head():
     html = b"""<html>\n<meta http-equiv="content-type" content="text/html; charset=utf-16" />
                <body>\nHello\nmeta http-equiv="content-type" content="text/html; charset=utf-8"
@@ -62,6 +70,7 @@ def test_codec_in_html_no_head():
     response = {"html": html}
     codec = http.codec_in_html(response)
     assert codec is None
+
 
 def test_codec_in_html_no_charset():
     html = b"""<html>\n<head>\n<meta http-equiv="content-type" content="text/html;" />
@@ -77,6 +86,7 @@ def test_get_codec():
     codec = http.get_codec(response)
     assert codec == "ISO-8859-9"
 
+
 def test_get_codec_2():
     html = b"""<html>\n<head>\n<meta http-equiv="content-type" content="text/html; charset=utf-16" />
                </head>\n<body>\nHello\nmeta http-equiv="content-type" content="text/html; charset=utf-8"
@@ -85,6 +95,7 @@ def test_get_codec_2():
                 "html": html}
     codec = http.get_codec(response)
     assert codec == "utf-16"
+
 
 def test_get_codec_3():
     html = b"""<html>\n<head>\n<meta http-equiv="content-type" content="text/html;" />

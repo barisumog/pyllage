@@ -26,67 +26,90 @@
 
 
 from .. import selectors
+import pytest
 
 
-def test_choose():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             2: {"tag": "div", "attrs": "class=x", "data": "p"},
-             3: {"tag": "a", "attrs": "", "data": "p"},
-             4: {"tag": "p", "attrs": "class=x", "data": "nop"},
-             5: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-    sel = selectors.choose(stack, tag="a", before=2, after=1)
-    assert sel == {1: {"tag": "p", "attrs": "", "data": "Hello"},
-                   2: {"tag": "div", "attrs": "class=x", "data": "p"},
-                   3: {"tag": "a", "attrs": "", "data": "p"},
-                   4: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-
-def test_choose_2():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             2: {"tag": "div", "attrs": "class=x", "data": "p"},
-             3: {"tag": "a", "attrs": "", "data": "p"},
-             4: {"tag": "p", "attrs": "class=x", "data": "nop"},
-             5: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-    sel = selectors.choose(stack, data="Hello", before=2, after=1)
-    assert sel == {1: {"tag": "p", "attrs": "", "data": "Hello"},
-                   2: {"tag": "div", "attrs": "class=x", "data": "p"}}
-
-def test_choose_3():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             2: {"tag": "div", "attrs": "class=x", "data": "p"},
-             3: {"tag": "a", "attrs": "", "data": "p"},
-             4: {"tag": "p", "attrs": "class=tux", "data": "nop"},
-             5: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-    sel = selectors.choose(stack, attrs="tux", after=3)
-    assert sel == {4: {"tag": "p", "attrs": "class=tux", "data": "nop"},
-                   5: {"tag": "p", "attrs": "class=x", "data": "nop"}}
+stack = {1: {"tag": "div", "attrs": "", "data": "div 1 here"},
+         2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+         3: {"tag": "p", "attrs": "", "data": "world"},
+         4: {"tag": "span", "attrs": "class=x", "data": ""},
+         5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
 
 
-def test_index():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             2: {"tag": "div", "attrs": "class=x", "data": "p"}}
-    keys = selectors.index(stack)
-    assert keys == [1, 2]
-
-def test_index_2():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"}}
-    keys = selectors.index(stack)
-    assert keys == 1
+def test_choose_tags():
+    c = selectors.choose(stack, tag="p div")
+    assert c == {1: {"tag": "div", "attrs": "", "data": "div 1 here"},
+                 2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+                 3: {"tag": "p", "attrs": "", "data": "world"},
+                 5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
 
 
-def test_between():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             3: {"tag": "div", "attrs": "class=x", "data": "p"},
-             5: {"tag": "a", "attrs": "", "data": "p"},
-             8: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-    sel = selectors.between(2, 6, stack)
-    assert sel == {3: {"tag": "div", "attrs": "class=x", "data": "p"},
-                   5: {"tag": "a", "attrs": "", "data": "p"}}
+def test_choose_tags_exact():
+    c = selectors.choose(stack, tag="span", exact=True)
+    assert c == {4: {"tag": "span", "attrs": "class=x", "data": ""}}
 
 
-def test_rip_data():
-    stack = {1: {"tag": "p", "attrs": "", "data": "Hello"},
-             3: {"tag": "div", "attrs": "class=x", "data": "p"},
-             5: {"tag": "a", "attrs": "", "data": ""},
-             8: {"tag": "p", "attrs": "class=x", "data": "nop"}}
-    data = selectors.rip_data(stack)
-    assert data == ["Hello", "p", "nop"]
+def test_choose_attrs():
+    c = selectors.choose(stack, attrs="class")
+    assert c == {2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+                 4: {"tag": "span", "attrs": "class=x", "data": ""},
+                 5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
+
+
+def test_choose_attrs_exact():
+    c = selectors.choose(stack, attrs="class=y", exact=True)
+    assert c == {5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
+
+
+def test_choose_data():
+    c = selectors.choose(stack, data="he")
+    assert c == {1: {"tag": "div", "attrs": "", "data": "div 1 here"},
+                 2: {"tag": "p", "attrs": "class=x", "data": "hello"}}
+
+
+def test_choose_data_exact():
+    c = selectors.choose(stack, data="", exact=True)
+    assert c == {4: {"tag": "span", "attrs": "class=x", "data": ""}}
+
+
+def test_choose_select():
+    c = selectors.choose(stack, attrs="", exact=True, select=False)
+    assert c == {2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+                 4: {"tag": "span", "attrs": "class=x", "data": ""},
+                 5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
+
+
+def test_relative_invalid_count():
+    with pytest.raises(ValueError) as e:
+        c = selectors.relative(stack, 3, count=0)
+    assert e.value.args[0] == "count < 1"
+
+
+def test_relative_invalid_index():
+    with pytest.raises(ValueError) as e:
+        c = selectors.relative(stack, 7)
+    assert e.value.args[0] == "index not in stack"
+
+
+def test_relative_invalid_offset():
+    with pytest.raises(ValueError) as e:
+        c = selectors.relative(stack, 3, offset=3)
+    assert e.value.args[0] == "offset out of range"
+
+
+def test_relative_over_count():
+    with pytest.raises(ValueError) as e:
+        c = selectors.relative(stack, 3, offset=1, count=3)
+    assert e.value.args[0] == "count out of range"
+
+
+def test_relative_defaults():
+    c = selectors.relative(stack, 4)
+    assert c == {5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
+
+
+def test_relative_negative_offset():
+    c = selectors.relative(stack, 4, offset=-2, count=2)
+    assert c =={2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+                3: {"tag": "p", "attrs": "", "data": "world"}}
+

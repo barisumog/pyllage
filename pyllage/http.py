@@ -24,10 +24,10 @@ import urllib.request
 import re
 
 
-def get(url):
+def get(url, headers={}):
     """Http GET the url, return response, headers, status and codec."""
     response = {}
-    request = urllib.request.Request(url)
+    request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request) as resp:
         response["headers"] = dict(resp.getheaders())
         response["status"] = resp.status
@@ -38,7 +38,10 @@ def get(url):
 
 def codec_in_headers(response):
     """Check the response headers for codec information."""
-    ct = response["headers"]["Content-Type"]
+    try:
+        ct = response["headers"]["Content-Type"]
+    except KeyError:
+        return None
     if "charset=" in ct:
         return ct.split("charset=")[1]
     return None

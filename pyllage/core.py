@@ -20,6 +20,9 @@
 #
 
 
+from .http import get
+from .parser import parse
+
 def stack_to_file(filename, stack, codec):
     """Write a stack to file with formatting."""
     # Utility function to help with inspecting and debugging the stack
@@ -35,3 +38,13 @@ def stack_to_file(filename, stack, codec):
         output.append("\n".join(lines))
     with open(filename, "w", encoding=codec) as file:
         file.write("".join(output))
+
+
+def get_stack(url, headers={}, filename=""):
+    response = get(url, headers)
+    codec = response["codec"]
+    html = response["html"].decode(codec)
+    stack = parse(html)
+    if filename:
+        stack_to_file(filename, stack, codec)
+    return stack
