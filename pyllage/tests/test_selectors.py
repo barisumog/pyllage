@@ -110,6 +110,28 @@ def test_relative_defaults():
 
 def test_relative_negative_offset():
     c = selectors.relative(stack, 4, offset=-2, count=2)
-    assert c =={2: {"tag": "p", "attrs": "class=x", "data": "hello"},
-                3: {"tag": "p", "attrs": "", "data": "world"}}
+    assert c == {2: {"tag": "p", "attrs": "class=x", "data": "hello"},
+                 3: {"tag": "p", "attrs": "", "data": "world"}}
 
+
+def test_rip_data():
+    c = selectors.rip_data(stack)
+    assert c == ["div 1 here", "hello", "world", "div 2 now"]
+
+
+def test_rip_index():
+    c = selectors.rip_index(stack)
+    assert c == [1, 2, 3, 4, 5]
+
+
+def test_between():
+    c = selectors.between(stack, 3, 10)
+    assert c == {3: {"tag": "p", "attrs": "", "data": "world"},
+                 4: {"tag": "span", "attrs": "class=x", "data": ""},
+                 5: {"tag": "div", "attrs": "class=y", "data": "div 2 now"}}
+
+
+def test_between_2():
+    c = selectors.between(stack, 3, 4)
+    assert c == {3: {"tag": "p", "attrs": "", "data": "world"},
+                 4: {"tag": "span", "attrs": "class=x", "data": ""}}

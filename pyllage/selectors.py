@@ -21,7 +21,7 @@
 
 
 def choose(stack, tag=None, attrs=None, data=None, select=True, exact=False):
-    """Choose items from stack.
+    """Returns a dictionary of items from stack that fit given criteria.
 
     If select is True, returns items that fit criteria. If False, returns all others.
     If exact is False, compares tag, attrs and data flexibly.
@@ -57,17 +57,17 @@ def choose(stack, tag=None, attrs=None, data=None, select=True, exact=False):
 
 
 def relative(stack, index, offset=1, count=1):
-    """Returns count number of items offset from index.
+    """Returns count number of items, starting at offset from index.
 
-    With defaults, it returns the next item.
+    With defaults, it just returns the next item.
     Offset can be negative, count must be greater than 1."""
     if count < 1:
         raise ValueError("count < 1")
     keys = sorted(stack.keys())
     try:
         start = keys.index(index) + offset
-    except ValueError:
-        raise ValueError("index not in stack")
+    except ValueError as ve:
+        raise ValueError("index not in stack") from ve
     if start < 0 or start > (len(keys) - 1):
         raise ValueError("offset out of range")
     if start + count > len(keys):
@@ -80,7 +80,7 @@ def relative(stack, index, offset=1, count=1):
 
 
 def rip_data(stack):
-    """Returns non-blank data values of stack in order."""
+    """Returns an ordered list of non-blank data values in stack."""
     keys = sorted(stack.keys())
     data = []
     for k in keys:
@@ -91,12 +91,12 @@ def rip_data(stack):
 
 
 def rip_index(stack):
-    """Returns the indexes of stack in order."""
+    """Returns an ordered list of the indexes in stack."""
     return sorted(stack.keys())
 
 
 def between(stack, start, stop):
-    """Returns items between given indexes."""
+    """Returns items between given indexes, inclusive."""
     chosen = {}
     for i in range(start, stop + 1):
         if i in stack:

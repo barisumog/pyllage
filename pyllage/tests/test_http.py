@@ -36,6 +36,11 @@ def test_get():
     assert response["codec"] != ""
 
 
+def test_get_headers():
+    response = http.get("http://httpbin.org/headers", {"Test": "pass"})
+    assert b'"Test": "pass"' in response["html"]
+
+
 def test_codec_in_headers():
     response = {"headers": {"Content-Type": "text/html; charset=ISO-8859-9"}}
     codec = http.codec_in_headers(response)

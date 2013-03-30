@@ -26,13 +26,22 @@
 
 
 from .. import core
-from .. import parser
+import os
 
 
-def test_stack_to_file():
-    html = '<p class="ex">Hello</p>'
-    stack = parser.parse(html)
+def test_stack_to_file(tmpdir):
+    d = tmpdir.mkdir("pyllage_test").chdir()
+    stack = {1: {"tag": "p", "attrs": "class=ex", "data": "Hello"}}
     core.stack_to_file("test.stack", stack, "utf-8")
     with open("test.stack") as file:
         data = file.read()
     assert data == "1 | p | class=ex\nHello\n\n"
+
+
+def test_get_stack(tmpdir):
+    d = tmpdir.mkdir("pyllage_test").chdir()
+    stack = core.get_stack("http://google.com", filename="test.out")
+    assert bool(stack)
+    with open("test.out") as file:
+        data = file.read(10)
+    assert bool(data)

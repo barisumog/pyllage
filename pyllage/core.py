@@ -26,7 +26,7 @@ from .parser import parse
 def stack_to_file(filename, stack, codec):
     """Write a stack to file with formatting."""
     # Utility function to help with inspecting and debugging the stack
-    # Note that it OVERWRITES any existing data in the given file
+    # Note that it **OVERWRITES** any existing data in the given file
     output = []
     for key in range(1, len(stack) + 1):
         lines = []
@@ -41,6 +41,7 @@ def stack_to_file(filename, stack, codec):
 
 
 def get_stack(url, headers={}, filename=""):
+    """Wraps http get and parsing. Also allows stack write."""
     response = get(url, headers)
     codec = response["codec"]
     html = response["html"].decode(codec)
