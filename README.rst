@@ -39,6 +39,10 @@ run the bundled tests.
 Installing
 ----------
 
+::
+
+    pip install pyllage
+
 
 
 Quick Start

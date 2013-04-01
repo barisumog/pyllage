@@ -27,7 +27,7 @@ from .utils import stack_to_file, get_stack
 
 
 __title__ = "pyllage"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "barisumog at gmail.com"
 __copyright__ = "copyright 2013 barisumog"
 __license__ = "GPLv3"
