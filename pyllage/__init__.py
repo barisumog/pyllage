@@ -18,3 +18,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+
+from .http import get
+from .parser import parse
+from .selectors import choose, relative, rip_data, rip_index, between
+from .utils import stack_to_file, get_stack
+
+
+__title__ = "pyllage"
+__version__ = "0.1.0"
+__author__ = "barisumog at gmail.com"
+__copyright__ = "copyright 2013 barisumog"
+__license__ = "GPLv3"
+__doc__ = """Please see the README.rst for full documentation.
+
+Quick Start
+-----------
+
+Here's a few quick examples illustrating *some* of the functions::
+
+    import pyllage
+    stack = pyllage.get_stack("http://somesite.com/etcetera")
+    
+    # get all links, print the href=... parts
+    
+    links = pyllage.choose(stack, tag="a")
+    for key in links:
+        print(links[key]["attrs"])
+    
+    # get all text data except scripts and print it
+    
+    texts = pyllage.choose(stack, tag="script", select=False)
+    data = pyllage.rip_data(texts)
+    print("\n".join(data))
+    
+    # get all spans and divs with class=help (but not class=helpmore)
+    
+    helps = pyllage.choose(stack, tag="span div", attrs="class=help", exact=True)
+    
+    # get all divs containing the word pyllage in their text part
+    
+    pylls = pyllage.choose(stack, tag="div", data="pyllage")
+"""

@@ -26,15 +26,12 @@ def choose(stack, tag=None, attrs=None, data=None, select=True, exact=False):
     If select is True, returns items that fit criteria. If False, returns all others.
     If exact is False, compares tag, attrs and data flexibly.
     If exact is True, compares tag, attrs and data exactly as given."""
-    if (tag is not None) and not exact:
+    if (tag is not None):
         tag = tag.split()
     chosen = {}
     for key in stack:
         item = stack[key]
-        if tag is not None:
-            if exact and tag != item["tag"]:
-                continue
-            if item["tag"] not in tag:
+        if (tag is not None) and (item["tag"] not in tag):
                 continue
         if attrs is not None:
             if exact and attrs != item["attrs"]:
