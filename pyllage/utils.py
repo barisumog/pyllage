@@ -40,9 +40,9 @@ def stack_to_file(filename, stack, codec):
         file.write("".join(output))
 
 
-def get_stack(url, headers={}, filename=""):
+def get_stack(url, headers={}, method="GET", postdata=None, filename=""):
     """Wraps http get and parsing. Also allows stack write."""
-    response = get(url, headers)
+    response = get(url, headers, method, postdata)
     codec = response["codec"]
     html = response["html"].decode(codec)
     stack = parse(html)

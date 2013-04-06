@@ -24,10 +24,10 @@ import urllib.request
 import re
 
 
-def get(url, headers={}):
-    """Http GET the url, return response, headers, status and codec."""
+def get(url, headers={}, method="GET", postdata=None):
+    """Http request the url, return response, headers, status and codec."""
     response = {}
-    request = urllib.request.Request(url, headers=headers)
+    request = urllib.request.Request(url, headers=headers, method=method, data=postdata)
     with urllib.request.urlopen(request) as resp:
         response["headers"] = dict(resp.getheaders())
         response["status"] = resp.status

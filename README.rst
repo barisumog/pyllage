@@ -15,7 +15,7 @@ ideas and easy integration with other tools and scripts.
 Features
 --------
 
-* currently only supports HTTP GET requests
+* supports HTTP GET and POST requests
 
 * allows custom request headers (cookies, user-agents, etc)
 
@@ -130,8 +130,8 @@ Functions for retrieving the stack
 
 ::
 
-    pyllage.get_stack(url, headers={}, filename=""):
-    """Wraps http get and parsing. Also allows stack write."""
+    pyllage.get_stack(url, headers={}, method="GET", postdata=None, filename=""):
+    """Wraps http request and parsing. Also allows stack write."""
 
 This is the main utility function for retrieving the stack from a url. It wraps the
 functionality of the 3 functions below, providing a shortcut. Normally, you can just
@@ -139,18 +139,24 @@ use ``get_stack`` unless you need to interfere with the **url -> stack** process
 
 ``headers`` lets you include cookies or user-agent strings.
 
+``method`` is either "GET" or "POST".
+
+``postdata`` is a bytes object containing data to be sent to the server for POST requests.
+
 If ``filename`` is given, the returned stack will also be written to disk, allowing
 for inspecting with a text editor.
 
 
 ::
 
-    pyllage.get(url, headers={}):
-    """Http GET the url, return response, headers, status and codec."""
+    pyllage.get(url, headers={} method="GET", postdata=None):
+    """Http request the url, return response, headers, status and codec."""
 
-Raw function that makes the Http GET request.
+Raw function that makes the Http request.
 
 ``response = get("http://somesite.com", {"Cookie": "valid=true;"})``
+
+``response = get("http://othersite.com", method="POST", postdata=b"answer=42")``
 
 The function returns a dictionary with the following keys:
 

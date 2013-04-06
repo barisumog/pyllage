@@ -35,7 +35,8 @@ setup(name='pyllage',
       author_email='barisumog@gmail.com',
       url='https://github.com/barisumog/pyllage',
       packages=find_packages(),
-      package_data={"": ["*.rst", "LICENSE"]},
+      include_package_data=True,
+      zip_safe=False,
       keywords="web scraper scraping",
       license="GPLv3"
      )
